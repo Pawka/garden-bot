@@ -1,6 +1,7 @@
 
 const int MOISTURE_PIN     = A0; //Moisture sensor pin.
 const int PHOTOCELL_PIN    = A1; //Light sensor pin.
+const int TEMPERATURE_PIN  = A3; //Temperature sensor pin.
 
 const int MOISTURE_LED_PIN = 12; //Light led when moisture is too low.
 const int OUPTUT_LED_PIN   = 13; //Data output indication pin.
@@ -50,17 +51,29 @@ int getLight() {
 }
 
 /**
+ * Return temperature value in celcius.
+ */
+float getTemperature() {
+    float temperature = (5.0 * analogRead(TEMPERATURE_PIN) * 100.0) / 1024;
+
+    return temperature;
+}
+
+/**
  * Send collected sensor values via serial connection.
  */
 void sendResults() {
     digitalWrite(OUPTUT_LED_PIN, HIGH);
     int moisture = getMoisture();
     int light = getLight();
+    float temperature = getTemperature();
 
     updateMoistureLed(moisture);
     Serial.print(moisture);
     Serial.print(";");
     Serial.print(light);
+    Serial.print(";");
+    Serial.print(temperature);
     Serial.println("");
     digitalWrite(OUPTUT_LED_PIN, LOW);
 }
