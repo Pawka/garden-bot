@@ -71,8 +71,8 @@ void setMoistureEdge(int value) {
 /**
  * Return results output timeout in miliseconds.
  */
-int getTimeout() {
-    int val = readEEPROM(ADDR_TIMEOUT); //Timeout is stored in seconds.
+long getTimeout() {
+    long val = readEEPROM(ADDR_TIMEOUT); //Timeout is stored in seconds.
 
     if (val < 0) {
         val = 1;
