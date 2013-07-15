@@ -10,8 +10,6 @@ const int OUPTUT_LED_PIN   = 13; //Data output indication pin.
 const int ADDR_MOISTURE = 0; //Moisture edge value address on EEPROM.
 const int ADDR_TIMEOUT  = 1; //Timeout value address on EEPROM (in seconds).
 
-int TIMEOUT          = 1000; //Loop timeout in ms.
-
 void setup() {                
     pinMode(OUPTUT_LED_PIN, OUTPUT);
     pinMode(MOISTURE_LED_PIN, OUTPUT);
@@ -20,7 +18,7 @@ void setup() {
 
 void loop() {
     sendResults();
-    delay(TIMEOUT);
+    delay(getTimeout());
 }
 
 /**
@@ -52,6 +50,8 @@ int readEEPROM(int address) {
  */
 int getMoistureEdge() {
     int val = readEEPROM(ADDR_MOISTURE);
+
+    //Analog value is between 0 and 1023.
     if (val < 0 || val > 1023) {
         //Default value
         val = 400; 
@@ -65,7 +65,29 @@ int getMoistureEdge() {
  * Store moisture edge value to memory.
  */
 void setMoistureEdge(int value) {
-    return writeEEPROM(ADDR_MOISTURE, value);
+    writeEEPROM(ADDR_MOISTURE, value);
+}
+
+/**
+ * Return results output timeout in miliseconds.
+ */
+int getTimeout() {
+    int val = readEEPROM(ADDR_TIMEOUT); //Timeout is stored in seconds.
+
+    if (val < 0) {
+        val = 1;
+        setTimeout(val);
+    }
+
+    //Convert to miliseconds.
+    return val * 1000;
+}
+
+/**
+ * Store timeout value to memory.
+ */
+void setTimeout(int value) {
+    writeEEPROM(ADDR_TIMEOUT, value);
 }
 
 
