@@ -152,3 +152,24 @@ void sendResults() {
     Serial.println("");
     digitalWrite(OUPTUT_LED_PIN, LOW);
 }
+
+/**
+ * Send current status info to serial.
+ */
+void sendInfo() {
+    Serial.println("Config");
+    Serial.println("--------------------");
+    Serial.print("Moisture edge: ");
+    Serial.println(getMoistureEdge());
+    Serial.print("Timeout:       ");
+    Serial.println(getTimeout() / 1000);
+
+    Serial.println("Stats");
+    Serial.println("--------------------");
+    Serial.print("Moisture:    ");
+    Serial.println(getMoisture());
+    Serial.print("Light:       ");
+    Serial.println(getLight());
+    Serial.print("Temperature: ");
+    Serial.println(getTemperature());
+}
