@@ -2,7 +2,6 @@ import serial, time, datetime
 
 port = '/dev/ttyUSB0'
 bound = 9600
-timeout = 2 #60
 
 ser = serial.Serial(port, bound, timeout=1)
 now = datetime.datetime.now()
@@ -22,4 +21,3 @@ while True:
         
     except serial.serialutil.SerialException, e:
         pass
-    time.sleep(timeout)
