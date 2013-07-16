@@ -13,11 +13,17 @@ while True:
     try:
         output = ser.readline().strip()
         if len(output):
-            timestamp = now.strftime("%Y-%m-%d %H:%M")
-            line = timestamp + "," + output
-            results.write(line + "\n")
-            results.flush()
-            print line
+
+            # If stats data line is returned
+            if "DAT;" == output[:4]:
+                timestamp = now.strftime("%Y-%m-%d %H:%M")
+                line = timestamp + "," + output[4:]
+                results.write(line + "\n")
+                results.flush()
+                print line
+            else:
+                print output
+
         
     except serial.serialutil.SerialException, e:
         pass
