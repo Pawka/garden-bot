@@ -10,6 +10,9 @@ const int OUPTUT_LED_PIN   = 13; //Data output indication pin.
 const int ADDR_MOISTURE = 0; //Moisture edge value address on EEPROM.
 const int ADDR_TIMEOUT  = 1; //Timeout value address on EEPROM (in seconds).
 
+const int READ_TIMEOUT  = 10;
+
+
 void setup() {                
     pinMode(OUPTUT_LED_PIN, OUTPUT);
     pinMode(MOISTURE_LED_PIN, OUTPUT);
@@ -17,8 +20,29 @@ void setup() {
 }
 
 void loop() {
+    String content = "";
+    char character;
+
+    while (Serial.available()) {
+        character = Serial.read();
+        content.concat(character);
+    }
+
+    //If command was received.
+    if (content.charAt(3) == ';') {
+        String cmd = content.substring(0, 3);
+        String value = content.substring(4);
+
+        if (cmd == "NFO") {
+            sendInfo();
+        }
+    }
+
+    delay(READ_TIMEOUT);
+
     sendResults();
-    delay(getTimeout());
+    delay(1000);
+    /*delay(getTimeout() - READ_TIMEOUT);*/
 }
 
 /**
@@ -74,7 +98,9 @@ void setMoistureEdge(int value) {
 long getTimeout() {
     long val = readEEPROM(ADDR_TIMEOUT); //Timeout is stored in seconds.
 
-    if (val < 0) {
+    //Available timeout range.
+    if (val < 0 || val > 60) {
+        //Default value
         val = 1;
         setTimeout(val);
     }
@@ -164,7 +190,7 @@ void sendInfo() {
     Serial.print("Timeout:       ");
     Serial.println(getTimeout() / 1000);
 
-    Serial.println("Stats");
+    Serial.println("\nStats");
     Serial.println("--------------------");
     Serial.print("Moisture:    ");
     Serial.println(getMoisture());
