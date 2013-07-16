@@ -11,7 +11,7 @@ const int OUPTUT_LED_PIN   = 13; //Data output indication pin.
 const int ADDR_MOISTURE = 0; //Moisture edge value address on EEPROM.
 const int ADDR_TIMEOUT  = 1; //Timeout value address on EEPROM (in seconds).
 
-const int READ_TIMEOUT  = 10;
+const int READ_TIMEOUT  = 20;
 
 
 void setup() {                
@@ -19,6 +19,8 @@ void setup() {
     pinMode(MOISTURE_LED_PIN, OUTPUT);
     Serial.begin(9600);
 }
+
+int timer = 0;
 
 void loop() {
     String content = "";
@@ -42,9 +44,15 @@ void loop() {
             cmdSetMoisture(value);
         }
     }
+
     delay(READ_TIMEOUT);
-    sendResults();
-    delay(getTimeout() - READ_TIMEOUT);
+
+    //Non blocking timer
+    if (timer >= getTimeout() - READ_TIMEOUT) {
+        sendResults();
+        timer = 0;
+    }
+    timer += READ_TIMEOUT;
 }
 
 /**
