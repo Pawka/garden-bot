@@ -1,3 +1,4 @@
+#include <stdlib.h> 
 #include <EEPROM.h>
 
 const int MOISTURE_PIN     = A0; //Moisture sensor pin.
@@ -34,15 +35,16 @@ void loop() {
         String value = content.substring(4);
 
         if (cmd == "NFO") {
-            sendInfo();
+            cmdInfo();
+        } else if (cmd == "TIM") {
+            cmdSetTimeout(value);
+        } else if (cmd == "MOI") {
+            cmdSetMoisture(value);
         }
     }
-
     delay(READ_TIMEOUT);
-
     sendResults();
-    delay(1000);
-    /*delay(getTimeout() - READ_TIMEOUT);*/
+    delay(getTimeout() - READ_TIMEOUT);
 }
 
 /**
@@ -76,7 +78,7 @@ int getMoistureEdge() {
     int val = readEEPROM(ADDR_MOISTURE);
 
     //Analog value is between 0 and 1023.
-    if (val < 0 || val > 1023) {
+    if (val < 1 || val > 1023) {
         //Default value
         val = 400; 
         setMoistureEdge(val);
@@ -99,7 +101,7 @@ long getTimeout() {
     long val = readEEPROM(ADDR_TIMEOUT); //Timeout is stored in seconds.
 
     //Available timeout range.
-    if (val < 0 || val > 60) {
+    if (val < 1 || val > 60) {
         //Default value
         val = 1;
         setTimeout(val);
@@ -170,6 +172,7 @@ void sendResults() {
     float temperature = getTemperature();
 
     updateMoistureLed(moisture);
+    Serial.print("DAT;"); //Prefix for output data.
     Serial.print(moisture);
     Serial.print(";");
     Serial.print(light);
@@ -182,7 +185,7 @@ void sendResults() {
 /**
  * Send current status info to serial.
  */
-void sendInfo() {
+void cmdInfo() {
     Serial.println("Config");
     Serial.println("--------------------");
     Serial.print("Moisture edge: ");
@@ -198,4 +201,22 @@ void sendInfo() {
     Serial.println(getLight());
     Serial.print("Temperature: ");
     Serial.println(getTemperature());
+}
+
+/**
+ * Command to set timeout.
+ */
+void cmdSetTimeout(String value) {
+    setTimeout(value.toInt());
+    Serial.print("Timeout set: ");
+    Serial.println(getTimeout() / 1000);
+}
+
+/**
+ * Command to set moisture edge level.
+ */
+void cmdSetMoisture(String value) {
+    setMoistureEdge(value.toInt());
+    Serial.print("Moisture set: ");
+    Serial.println(getMoistureEdge());
 }
